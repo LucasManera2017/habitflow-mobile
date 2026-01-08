@@ -2,6 +2,7 @@ import { api } from "@/services/api";
 import { Ionicons } from "@expo/vector-icons";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import MaskedView from "@react-native-masked-view/masked-view";
+import { isAxiosError } from "axios";
 import { LinearGradient } from "expo-linear-gradient";
 import { router, useFocusEffect } from "expo-router";
 import { useCallback, useState } from "react";
@@ -42,9 +43,9 @@ export default function Register() {
       setLoading(true);
 
       const response = await api.post("/api/register", {
-        name,
-        email,
-        password,
+        name: name.trim(),
+        email: email.trim().toLowerCase(),
+        password: password,
       });
 
       const { user, token } = response.data;
@@ -56,9 +57,16 @@ export default function Register() {
       api.defaults.headers.common.Authorization = `Bearer ${token}`;
 
       router.replace("/dashboard");
-    } catch (error) {
-      console.error(error);
-      alert("Error creating account");
+    } catch (error: unknown) {
+      // Usando a importação nomeada conforme a sugestão
+      if (isAxiosError(error)) {
+        const errorMessage = error.response?.data?.message || "Error creating account";
+        console.error("Erro do servidor:", error.response?.data);
+        alert(errorMessage);
+      } else {
+        console.error("Erro desconhecido:", error);
+        alert("An unexpected error occurred");
+      }
     } finally {
       setLoading(false);
     }
