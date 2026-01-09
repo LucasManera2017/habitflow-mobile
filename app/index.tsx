@@ -1,19 +1,23 @@
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { LinearGradient } from "expo-linear-gradient";
-import { router } from "expo-router";
+import { useRouter } from "expo-router";
 import { useEffect, useState } from "react";
 import {
   ActivityIndicator,
   Image,
   Pressable,
-  Text
+  Text,
 } from "react-native";
 
 export default function Index() {
+  const router = useRouter();
+
   const [loading, setLoading] = useState(true);
   const [showOnboarding, setShowOnboarding] = useState(false);
 
   useEffect(() => {
+    let isMounted = true;
+
     async function decideFlow() {
       try {
         const token = await AsyncStorage.getItem("token");
@@ -21,7 +25,9 @@ export default function Index() {
           "hasSeenOnboarding"
         );
 
-        // 🔐 Já está logado → dashboard
+        if (!isMounted) return;
+
+        // 🔐 Logado → dashboard
         if (token) {
           router.replace("/dashboard");
           return;
@@ -33,7 +39,7 @@ export default function Index() {
           return;
         }
 
-        // 🚀 Primeira vez → onboarding
+        // 🚀 Primeira vez
         setShowOnboarding(true);
       } catch (error) {
         console.log("Erro ao decidir fluxo:", error);
@@ -44,6 +50,10 @@ export default function Index() {
     }
 
     decideFlow();
+
+    return () => {
+      isMounted = false;
+    };
   }, []);
 
   // ⏳ Loader inicial
@@ -58,7 +68,7 @@ export default function Index() {
     );
   }
 
-  // ⚠️ Segurança: nunca renderizar null
+  // 🛡️ Segurança
   if (!showOnboarding) {
     return (
       <LinearGradient
@@ -70,7 +80,7 @@ export default function Index() {
     );
   }
 
-  // 🎉 Onboarding (Get Started)
+  // 🎉 Onboarding
   return (
     <LinearGradient
       colors={["#C1ECFF", "#FBFDFE"]}

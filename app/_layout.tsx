@@ -5,7 +5,7 @@ import {
   Outfit_700Bold,
 } from "@expo-google-fonts/outfit";
 import { useFonts } from "expo-font";
-import { Slot } from "expo-router";
+import { Stack } from "expo-router";
 import "../global.css";
 
 export default function RootLayout() {
@@ -17,8 +17,10 @@ export default function RootLayout() {
   });
 
   if (!fontsLoaded) {
-    return null; // ou um splash
+    return null;
   }
 
-  return <Slot />; // expo-router
+  return (
+    <Stack screenOptions={{ headerShown: false }} />
+  );
 }
