@@ -1,7 +1,6 @@
 import axios from "axios";
-import Constants from "expo-constants";
 
-const apiUrl = Constants.expoConfig?.extra?.apiUrl;
+const apiUrl = "https://habitflow-backend-zt02.onrender.com";
 
 export const api = axios.create({
   baseURL: apiUrl,
